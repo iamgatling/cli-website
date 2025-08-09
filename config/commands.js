@@ -83,8 +83,33 @@ const commands = {
     }
   },
 
-  git: function() {
-    term.displayURL("https://github.com/rootvc/cli-website");
+  git: function(args) {
+    const subcommand = args[0];
+    if (subcommand === 'pull') {
+      term.stylePrint("remote: Enumerating objects: 5, done.");
+      term.stylePrint("remote: Counting objects: 100% (5/5), done.");
+      term.stylePrint("remote: Compressing objects: 100% (3/3), done.");
+      term.stylePrint("remote: Total 3 (delta 2), reused 0 (delta 0), pack-reused 0");
+      term.stylePrint("Unpacking objects: 100% (3/3), done.");
+      term.stylePrint("From https://github.com/rootvc/cli-website");
+      term.stylePrint("   e6c03a..a7f5e7  main       -> origin/main");
+      term.stylePrint("Updating e6c03a..a7f5e7");
+      term.stylePrint("Fast-forward");
+      term.stylePrint(" README.md | 2 +-");
+      term.stylePrint(" 1 file changed, 1 insertion(+), 1 deletion(-)");
+    } else if (subcommand === 'push') {
+      term.stylePrint("Enumerating objects: 5, done.");
+      term.stylePrint("Counting objects: 100% (5/5), done.");
+      term.stylePrint("Delta compression using up to 8 threads");
+      term.stylePrint("Compressing objects: 100% (3/3), done.");
+      term.stylePrint("Writing objects: 100% (3/3), 420 bytes | 420.00 KiB/s, done.");
+      term.stylePrint("Total 3 (delta 2), reused 0 (delta 0)");
+      term.stylePrint("remote: Resolving deltas: 100% (2/2), completed with 2 local objects.");
+      term.stylePrint("To https://github.com/rootvc/cli-website.git");
+      term.stylePrint("   a7f5e7..e6c03a  main -> main");
+    } else {
+      term.displayURL("https://github.com/rootvc/cli-website");
+    }
   },
 
   agm: function() {
@@ -426,8 +451,22 @@ const commands = {
     term.stylePrint("I'm sorry Dave, I'm afraid I can't do that.");
   },
 
-  mkdir: function() {
-    term.stylePrint("Come on, don't mess with our immaculate file system.");
+  mkdir: function(args) {
+    const dirname = args[0];
+    if (!dirname) {
+      term.stylePrint("usage: mkdir [directory]");
+      return;
+    }
+
+    if (_filesHere().includes(dirname)) {
+      term.stylePrint(`mkdir: ${dirname}: File exists`);
+      return;
+    }
+
+    if (!_DIRS[term.cwd].includes(dirname)) {
+      _DIRS[term.cwd].push(dirname);
+      _DIRS[dirname] = [];
+    }
   },
 
   alias: function() {
@@ -504,8 +543,18 @@ const commands = {
     }
   },
 
-  touch: function() {
-    term.stylePrint("You can't %touch% this");
+  touch: function(args) {
+    const filename = args[0];
+    if (!filename) {
+      term.stylePrint("usage: touch [file]");
+      return;
+    }
+
+    if (!_filesHere().includes(filename)) {
+      _DIRS[term.cwd].push(filename);
+    }
+    _FILES[filename] = "";
+    _insertFileToDOM(filename, "");
   },
 
   sudo: function(args) {
